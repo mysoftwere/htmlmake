@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML Make Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans Bengali', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f0f4f9 0%, #eef2f7 100%);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+      color: #1e293b;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── HEADER ── */
+    .header-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-icon {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .header-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+    .header-sub { font-size: 12.5px; color: #64748b; margin-top: 2px; }
+    .badge-live {
+      background: #dcfce7; color: #15803d;
+      border: 1px solid #bbf7d0;
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap;
+    }
+    .badge-live::before { content: '●'; font-size: 9px; }
+
+    /* ── STEP CARD ── */
+    .step-card {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 22px 22px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    .step-card.active-step { border-color: #3b82f6; background: #f8faff; }
+
+    .step-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 18px;
+    }
+    .step-badge {
+      width: 30px; height: 30px;
+      background: #2563eb; color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .step-sub { font-size: 12.5px; color: #64748b; margin-top: 3px; }
+
+    /* ── DROPZONE ── */
+    .dropzone {
+      border: 2px dashed #93c5fd;
+      background: #eff6ff;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+    .dropzone:hover { border-color: #2563eb; background: #dbeafe; }
+    .dropzone.dragover { border-color: #1d4ed8; background: #bfdbfe; }
+    .dropzone-icon { font-size: 36px; margin-bottom: 8px; }
+    .dropzone-text { font-size: 13.5px; font-weight: 600; color: #1e40af; margin-bottom: 4px; }
+    .dropzone-hint { font-size: 12px; color: #64748b; margin-bottom: 14px; }
+    .btn-upload {
+      background: #354be6; color: #fff;
+      border: none; border-radius: 8px;
+      padding: 9px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-upload:hover { background: #2538c5; }
+
+    /* ── TEXTAREA ── */
+    .label-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .field-label { font-size: 13px; font-weight: 600; color: #374151; }
+    .count-badge {
+      background: #eff6ff; color: #2563eb;
+      border: 1px solid #bfdbfe;
+      border-radius: 20px; padding: 2px 10px;
+      font-size: 11.5px; font-weight: 600;
+    }
+    textarea {
+      width: 100%; border: 1.5px solid #e2e8f0;
+      border-radius: 10px; padding: 11px 13px;
+      font-size: 13px; font-family: inherit;
+      resize: vertical; min-height: 100px;
+      color: #1e293b; background: #fff;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    textarea:focus { border-color: #3b82f6; }
+    textarea::placeholder { color: #94a3b8; }
+
+    /* ── INPUT GRID ── */
+    .input-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 14px;
+    }
+    @media(max-width: 540px) { .input-grid { grid-template-columns: 1fr; } }
+
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 13px; font-weight: 600; color: #374151; }
+    .input-group input[type="text"],
+    .input-group input[type="number"],
+    .input-group input[type="url"],
+    .input-group input[type="date"] {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px; padding: 9px 12px;
+      font-size: 13px; font-family: inherit;
+      color: #1e293b; background: #fff;
+      transition: border-color 0.2s; outline: none; width: 100%;
+    }
+    .input-group input:focus { border-color: #3b82f6; }
+    .input-hint { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── FILENAME PREVIEW ── */
+    .filename-preview {
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 9px 13px;
+      margin-top: 10px; font-size: 12px;
+      color: #475569; display: flex; align-items: center; gap: 8px;
+    }
+    .filename-preview strong { color: #0f172a; }
+    .preview-val { color: #2563eb; font-weight: 500; font-family: monospace; }
+
+    /* ── LOCK HINT ── */
+    .lock-hint {
+      font-size: 12px; color: #64748b;
+      margin-top: 7px; display: flex; align-items: flex-start; gap: 5px;
+    }
+
+    /* ── IMAGE GRID ── */
+    .image-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-top: 14px;
+    }
+    @media(max-width: 480px) { .image-grid { grid-template-columns: 1fr; } }
+
+    .img-upload-box {
+      border: 2px dashed #cbd5e1; border-radius: 10px;
+      padding: 28px 16px; text-align: center;
+      background: #f8fafc; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .img-upload-box:hover { border-color: #3b82f6; background: #eff6ff; }
+    .img-upload-box .img-icon { font-size: 28px; margin-bottom: 8px; }
+    .img-upload-box .img-label { font-size: 12.5px; font-weight: 600; color: #475569; }
+    .img-upload-box .img-sub { font-size: 11.5px; color: #94a3b8; margin-top: 4px; }
+
+    .img-preview-box {
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      overflow: hidden; position: relative; background: #000;
+      min-height: 130px;
+    }
+    .img-preview-box img {
+      width: 100%; height: 130px; object-fit: cover;
+      display: block; opacity: 0.75;
+    }
+    .img-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .play-btn-text {
+      background: #06d6a0; color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 4px 10px; border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .img-meta {
+      padding: 8px 10px;
+      background: #fff; border-top: 1px solid #f1f5f9;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .img-meta-name { font-size: 11px; color: #64748b; }
+    .btn-reset {
+      background: #f1f5f9; color: #475569;
+      border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 4px 10px; font-size: 11.5px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-reset:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+    /* ── RADIO DATE CARDS ── */
+    .date-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-top: 4px;
+    }
+    @media(max-width: 500px) { .date-grid { grid-template-columns: 1fr; } }
+
+    .date-card {
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      padding: 14px 16px; cursor: pointer;
+      transition: all 0.2s; background: #fff;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .date-card:hover { border-color: #93c5fd; background: #f8faff; }
+    .date-card.selected { border-color: #2563eb; background: #eff6ff; }
+    .date-card input[type="radio"] { margin-top: 2px; accent-color: #2563eb; flex-shrink: 0; }
+    .date-card-content { flex: 1; }
+    .date-card-label { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .date-card-note { font-size: 11.5px; color: #dc2626; font-weight: 600; margin-top: 4px; }
+    .date-picker { margin-top: 8px; }
+
+    /* ── SUBMIT BTN ── */
+    .submit-btn {
+      background: linear-gradient(135deg, #2e15bd, #2209a8);
+      color: #fff; border: none; border-radius: 12px;
+      width: 100%; padding: 16px;
+      font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 20px rgba(46,21,189,0.3);
+      letter-spacing: 0.3px;
+    }
+    .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(46,21,189,0.4); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      background: #f1f5f9; border-radius: 20px; height: 8px;
+      overflow: hidden; margin-top: 14px; display: none;
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #2563eb, #06d6a0);
+      border-radius: 20px; transition: width 0.3s;
+    }
+
+    /* ── LOG BOX ── */
+    .log-box {
+      background: #0f172a; color: #f8fafc;
+      border-radius: 10px; padding: 14px 16px;
+      font-family: 'Consolas', monospace; font-size: 12px;
+      max-height: 180px; overflow-y: auto;
+      margin-top: 14px; display: none;
+      line-height: 1.7;
+    }
+    .log-success { color: #4ade80; }
+    .log-error { color: #f87171; }
+    .log-info { color: #60a5fa; }
+    .log-warn { color: #fbbf24; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center; font-size: 12px; color: #94a3b8;
+      padding-top: 8px;
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .step-card + .step-card { margin-top: 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div class="header-left">
+      <div class="header-icon">🌐</div>
+      <div>
+        <div class="header-title">HTML Make Generator</div>
+        <div class="header-sub">মোবাইল ও পিসিতে সরাসরি ব্রাউজার থেকেই HTML ফাইল তৈরি করুন</div>
+      </div>
+    </div>
+    <div class="badge-live">GitHub Live</div>
+  </div>
+
+  <!-- STEP 1: TITLES -->
+  <div class="step-card active-step">
+    <div class="step-header">
+      <div class="step-badge">1</div>
+      <div>
+        <div class="step-title">Title বা শিরোনাম নির্বাচন (.txt ফাইল আপলোড করুন)</div>
+        <div class="step-sub">প্রতিটি লাইন = একটি HTML ফাইল তৈরি হবে</div>
+      </div>
+    </div>
+
+    <!-- Dropzone -->
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('txtInput').click()">
+      <div class="dropzone-icon">📂</div>
+      <div class="dropzone-text">Title-এর .txt ফাইল আপলোড করতে এখানে চাপুন</div>
+      <div class="dropzone-hint">ড্র্যাগ বা ট্যাপ করে আপনার titles.txt ফাইল চুজ করুন</div>
+      <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('txtInput').click()">
+        📁 ফাইল সিলেক্ট করুন (.txt)
+      </button>
+    </div>
+    <input type="file" id="txtInput" accept=".txt" style="display:none" onchange="loadTxtFile(event)" />
+
+    <!-- Textarea -->
+    <div class="label-row" style="margin-top:4px;">
+      <div class="field-label">টাইটেল তালিকা (ফাইল থেকে আসা বা সরাসরি লেখা):</div>
+      <div class="count-badge" id="titleCount">0 টি টাইটেল</div>
+    </div>
+    <textarea id="titlesArea" placeholder="এখানে টাইটেলগুলো স্বয়ংক্রিয়ভাবে চলে আসবে অথবা আপনি নিজেও লিখতে পারেন...&#10;&#10;উদাহরণ:&#10;Bangla Hot Video Full HD&#10;New Viral Link 2024&#10;Trending Adult Video" oninput="updateCount()" rows="5"></textarea>
+
+    <!-- Settings Grid -->
+    <div class="input-grid">
+      <div class="input-group">
+        <label>কাস্টম ফাইল নাম / Prefix (ঐচ্ছিক):</label>
+        <input type="text" id="prefixInput" placeholder="যেমন: viral-video (খালি রাখলে Title থেকে নেবে)" oninput="updatePreview()" />
+        <div class="input-hint">খালি রাখলে প্রতিটি Title অনুযায়ী স্বয়ংক্রিয় নাম হবে।</div>
+      </div>
+      <div class="input-group">
+        <label>সিরিয়াল শুরু নম্বর (Serial):</label>
+        <input type="number" id="serialStart" value="1" min="1" oninput="updatePreview()" />
+        <div class="input-hint">শুরুর নম্বর: ১ দিলে -১, -২, -৩, -৪, -৫ হবে।</div>
+      </div>
+    </div>
+
+    <!-- Filename Preview -->
+    <div class="filename-preview">
+      <span>📄 ফাইল নামের নমুনা:</span>
+      <span class="preview-val" id="filenamePreview">viral-video-1.html, viral-video-2.html, viral-video-3.html...</span>
+    </div>
+  </div>
+
+  <!-- STEP 2: SCRIPT LINK -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge">2</div>
+      <div>
+        <div class="step-title">Script Link (ভিডিও/রিডাইরেক্ট স্ক্রিপ্ট URL)</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>কাস্টম Script লিংক (ঐচ্ছিক):</label>
+      <input type="url" id="scriptLink" placeholder="নতুন কোনো লিংক দিতে চাইলে এখানে লিখুন (নইলে ডিফল্ট ফিক্সড লিংক কাজ করবে)" />
+    </div>
+    <div class="lock-hint">
+      🔒 খালি রাখলে স্বয়ংক্রিয়ভাবে ফিক্সড সিক্রেট স্ক্রিপ্ট লিংক ব্যবহৃত হবে (দেখাবে না)
+    </div>
+  </div>
+
+  <!-- STEP 3: IMAGE -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge">3</div>
+      <div>
+        <div class="step-title">Image বা ছবি নির্বাচন (ফিক্সড ডিফল্ট ছবি সেট করা আছে)</div>
+        <div class="step-sub">ছবি না দিলে স্বয়ংক্রিয়ভাবে আপনার ফিক্সড ডিফল্ট ব্যানার ছবিটি ব্যবহার হবে।</div>
+      </div>
+    </div>
+
+    <div class="image-grid">
+      <!-- Upload Box -->
+      <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
+        <div class="img-icon">🖼️</div>
+        <div class="img-label">নতুন কোনো ছবি দিতে চাইলে সিলেক্ট করুন</div>
+        <div class="img-sub">ছবি না দিলে ফিক্সড ডিফল্ট ব্যানারটি ব্যবহার হবে</div>
+        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="previewImage(event)" />
+      </div>
+
+      <!-- Preview Box -->
+      <div style="border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; background:#000;">
+        <div style="position:relative; min-height:130px;">
+          <img id="previewImg"
+            src="https://cdnb.artstation.com/p/assets/images/images/076/569/795/large/full-video-video-adik-kakak-viral-tiktok-baju-biru-full-7-menit-link-hd-30.jpg"
+            onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjEzMCIgZmlsbD0iIzFhMWEyZSIvPjx0ZXh0IHg9IjE1MCIgeT0iNzAiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NDc0OGIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkRlZmF1bHQgQmFubmVyPC90ZXh0Pjwvc3ZnPg=='"
+            style="width:100%; height:130px; object-fit:cover; display:block; opacity:0.75;" />
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <span style="background:#06d6a0;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;letter-spacing:.5px;">CLICK HERE TO PLAY</span>
+          </div>
+        </div>
+        <div class="img-meta">
+          <span class="img-meta-name" id="imgName">ফিক্সড ব্যানার (Default)</span>
+          <button class="btn-reset" onclick="resetImage()">ফিক্সড ব্যানার</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image URL input -->
+    <div class="input-group" style="margin-top:14px;">
+      <label>অথবা Image URL দিন:</label>
+      <input type="url" id="imageUrl" placeholder="https://example.com/your-image.jpg" oninput="updateImageFromUrl()" />
+    </div>
+  </div>
+
+  <!-- STEP 4: DATE -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge">4</div>
+      <div>
+        <div class="step-title">তারিখ (Date) অপশন</div>
+      </div>
+    </div>
+
+    <div class="date-grid">
+      <label class="date-card selected" id="card-tomorrow" onclick="selectDate('tomorrow')">
+        <input type="radio" name="dateOption" value="tomorrow" checked />
+        <div class="date-card-content">
+          <div class="date-card-label">পরের দিনের তারিখ (Tomorrow - রিকমেন্ডেড)</div>
+          <div class="date-card-note" id="tomorrowNote">LAST UPDATED: Loading...</div>
+        </div>
+      </label>
+      <label class="date-card" id="card-custom" onclick="selectDate('custom')">
+        <input type="radio" name="dateOption" value="custom" />
+        <div class="date-card-content">
+          <div class="date-card-label">কাস্টম তারিখ সিলেক্ট করুন</div>
+          <div class="date-picker">
+            <input type="date" id="customDate" class="input-group" style="width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;margin-top:6px;font-family:inherit;" onclick="event.stopPropagation(); selectDate('custom')" />
+          </div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- STEP 5: TEMPLATE SELECTION -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge" style="background:#7c3aed;">৫</div>
+      <div class="step-title">HTML টেমপ্লেট নির্বাচন (Custom Template)</div>
+    </div>
+    <div class="step-desc">
+      ডিফল্ট টেমপ্লেট ব্যবহার করুন অথবা আপনার কাস্টম HTML ফাইল আপলোড/কোড পেস্ট করুন
+    </div>
+
+    <!-- Template Options -->
+    <div class="tpl-options-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px;">
+      <label class="tpl-opt-card" id="tpl-card-default" onclick="selectTplMode('default')" style="border:1.5px solid #7c3aed;background:#f5f3ff;border-radius:9px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;">
+        <input type="radio" name="tplMode" value="default" checked style="accent-color:#7c3aed;" />
+        <span style="font-size:12px;font-weight:600;color:#5b21b6;">⚙️ ডিফল্ট</span>
+      </label>
+      <label class="tpl-opt-card" id="tpl-card-upload" onclick="selectTplMode('upload')" style="border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;">
+        <input type="radio" name="tplMode" value="upload" style="accent-color:#7c3aed;" />
+        <span style="font-size:12px;font-weight:600;color:#475569;">📁 ফাইল আপলোড</span>
+      </label>
+      <label class="tpl-opt-card" id="tpl-card-paste" onclick="selectTplMode('paste')" style="border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;padding:10px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;">
+        <input type="radio" name="tplMode" value="paste" style="accent-color:#7c3aed;" />
+        <span style="font-size:12px;font-weight:600;color:#475569;">📋 কোড পেস্ট</span>
+      </label>
+    </div>
+
+    <!-- Mode 1: Default Info -->
+    <div id="tpl-panel-default" style="font-size:12px;color:#64748b;background:#f8fafc;padding:10px 14px;border-radius:8px;border:1px dashed #cbd5e1;">
+      ℹ️ স্ট্যান্ডার্ড অপ্টিমাইজড টেমপ্লেট ব্যবহার হবে (Title, Meta Tags, JSON-LD Schema, Script & Image স্বয়ংক্রিয় যুক্ত হবে)।
+    </div>
+
+    <!-- Mode 2: Upload File -->
+    <div id="tpl-panel-upload" style="display:none;">
+      <div class="dropzone" id="tplDropzone" onclick="document.getElementById('tplFileInput').click()" style="border-color:#c4b5fd;background:#faf5ff;">
+        <div class="drop-icon" style="background:#ede9fe;">📄</div>
+        <div class="drop-text"><strong>কাস্টম HTML ফাইল আপলোড করুন</strong> বা ড্র্যাগ করুন</div>
+        <div class="drop-sub">যেকোনো .html ফাইল এখানে নির্বাচন করুন</div>
+      </div>
+      <input type="file" id="tplFileInput" accept=".html,.htm" style="display:none" onchange="handleTplFileUpload(event)" />
+      <div id="tplUploadStatus" style="margin-top:8px;font-size:12px;font-weight:600;display:none;padding:8px 12px;border-radius:6px;"></div>
+    </div>
+
+    <!-- Mode 3: Paste Code -->
+    <div id="tpl-panel-paste" style="display:none;">
+      <textarea id="tplCustomCode" class="textarea-box" rows="5" placeholder="সম্পূর্ণ HTML কোড এখানে পেস্ট করুন (<!DOCTYPE html>...)..." style="font-family:monospace;font-size:11px;" oninput="handleTplCodeInput()"></textarea>
+      <div id="tplPasteStatus" style="margin-top:6px;font-size:11px;color:#64748b;"></div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="step-card" style="border:none; background:transparent; box-shadow:none; padding: 4px 0 0;">
+    <button class="submit-btn" id="submitBtn" onclick="startProcess()">
+      ⚡ HTML তৈরি শুরু করুন
+    </button>
+
+    <!-- Progress -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Log -->
+    <div class="log-box" id="logBox"></div>
+
+    <!-- Download area -->
+    <div id="downloadArea" style="display:none; margin-top:14px;"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Standalone Client-Side HTML Maker • GitHub Pages Ready • 100% Mobile & PC Compatible
+  </div>
+</div>
+
+<!-- ── JSZip CDN for ZIP download ── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+// ── FIXED DEFAULT VALUES ──
+const DEFAULT_SCRIPT = "https://portalbsc.github.io/let/sp.js";
+const DEFAULT_IMAGE = "https://cdnb.artstation.com/p/assets/images/images/076/569/795/large/full-video-video-adik-kakak-viral-tiktok-baju-biru-full-7-menit-link-hd-30.jpg";
+
+// ── INIT ──
+window.onload = () => {
+  setTomorrowNote();
+  const td = getTomorrowStr();
+  document.getElementById('customDate').value = td;
+  updatePreview();
+};
+
+function getTomorrowStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+}
+function getTodayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+function setTomorrowNote() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  document.getElementById('tomorrowNote').textContent =
+    `LAST UPDATED: ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// ── DRAG & DROP ──
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith('.txt')) readTxt(file);
+});
+
+function loadTxtFile(e) {
+  const file = e.target.files[0];
+  if (file) readTxt(file);
+}
+function readTxt(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('titlesArea').value = ev.target.result.trim();
+    updateCount();
+    log(`✅ ফাইল লোড হয়েছে: ${file.name}`, 'success');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ── COUNT ──
+function updateCount() {
+  const lines = document.getElementById('titlesArea').value
+    .split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  document.getElementById('titleCount').textContent = `${lines.length} টি টাইটেল`;
+  updatePreview();
+}
+
+// ── FILENAME PREVIEW ──
+function updatePreview() {
+  const prefix = document.getElementById('prefixInput').value.trim();
+  const serial = parseInt(document.getElementById('serialStart').value) || 1;
+  let names;
+  if (prefix) {
+    names = [serial, serial+1, serial+2].map(n => `${prefix}-${n}.html`);
+  } else {
+    names = ["bangla-viral-video.html", "hot-link-2024.html", "new-video.html"];
+  }
+  document.getElementById('filenamePreview').textContent = names.join(', ') + '...';
+}
+
+// ── IMAGE ──
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('previewImg').src = ev.target.result;
+    document.getElementById('imgName').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+function updateImageFromUrl() {
+  const url = document.getElementById('imageUrl').value.trim();
+  if (url) {
+    document.getElementById('previewImg').src = url;
+    document.getElementById('imgName').textContent = 'Custom URL';
+  }
+}
+function resetImage() {
+  document.getElementById('previewImg').src = DEFAULT_IMAGE;
+  document.getElementById('imgName').textContent = 'ফিক্সড ব্যানার (Default)';
+  document.getElementById('imageUrl').value = '';
+  document.getElementById('imgInput').value = '';
+}
+
+// ── DATE SELECTION ──
+function selectDate(type) {
+  document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`card-${type}`).classList.add('selected');
+  document.querySelector(`input[value="${type}"]`).checked = true;
+}
+
+function getSelectedDate() {
+  const sel = document.querySelector('input[name="dateOption"]:checked').value;
+  if (sel === 'tomorrow') return getTomorrowStr();
+  return document.getElementById('customDate').value || getTomorrowStr();
+}
+
+// ── SLUG GENERATOR ──
+function toSlug(title) {
+  if (!title) return "video";
+  const clean = title.replace(/[^a-zA-Z0-9\s_-]/g, ' ').trim();
+  const words = clean.split(/\s+/).filter(w => w).slice(0, 7);
+  if (!words.length) return "video";
+  return words.join('-').toLowerCase();
+}
+
+// ── LOG ──
+const logEl = document.getElementById('logBox');
+function log(msg, type='info') {
+  logEl.style.display = 'block';
+  const line = document.createElement('div');
+  line.className = `log-${type}`;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function clearLog() { logEl.innerHTML = ''; logEl.style.display = 'none'; }
+
+// ── MAIN PROCESS ──
+async function startProcess() {
+  const titlesRaw = document.getElementById('titlesArea').value;
+  const titles = titlesRaw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
+
+  if (titles.length === 0) {
+    alert('⚠️ অন্তত একটি টাইটেল দিন!');
+    return;
+  }
+
+  clearLog();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ তৈরি হচ্ছে...';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+  progressWrap.style.display = 'block';
+  progressBar.style.width = '0%';
+
+  const prefix    = document.getElementById('prefixInput').value.trim();
+  const serialNum = parseInt(document.getElementById('serialStart').value) || 1;
+  const scriptUrl = document.getElementById('scriptLink').value.trim() || DEFAULT_SCRIPT;
+  const imageUrl  = document.getElementById('imageUrl').value.trim() ||
+                    document.getElementById('previewImg').src || DEFAULT_IMAGE;
+  const dateStr   = getSelectedDate();
+
+  log(`📋 মোট ${titles.length}টি টাইটেল পাওয়া গেছে।`, 'info');
+  log(`🔗 Script: ${scriptUrl}`, 'info');
+  log(`📅 Date: ${dateStr}`, 'info');
+
+  const zip = new JSZip();
+  let success = 0, fail = 0;
+  const usedNames = new Set();
+
+  for (let i = 0; i < titles.length; i++) {
+    const title = titles[i];
+    const num = serialNum + i;
+
+    let filename;
+    if (prefix) {
+      filename = `${prefix}-${num}.html`;
+    } else {
+      let slug = toSlug(title);
+      filename = `${slug}.html`;
+      if (usedNames.has(filename)) filename = `${slug}-${num}.html`;
+    }
+    usedNames.add(filename);
+
+    try {
+      const html = buildHTML(title, scriptUrl, imageUrl, dateStr);
+      zip.file(filename, html);
+      success++;
+      log(`✅ [${i+1}/${titles.length}] → ${filename}`, 'success');
+    } catch(e) {
+      fail++;
+      log(`❌ [${i+1}/${titles.length}] Error: ${e.message}`, 'error');
+    }
+
+    progressBar.style.width = `${Math.round(((i+1)/titles.length)*100)}%`;
+    await new Promise(r => setTimeout(r, 20));
+  }
+
+  log(`\n📦 ZIP তৈরি হচ্ছে...`, 'info');
+  const content = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(content);
+
+  const dlArea = document.getElementById('downloadArea');
+  dlArea.style.display = 'block';
+  dlArea.innerHTML = `
+    <a href="${url}" download="html-output-${dateStr}.zip"
+       style="display:flex;align-items:center;justify-content:center;gap:8px;
+              background:linear-gradient(135deg,#059669,#047857);
+              color:#fff;text-decoration:none;border-radius:10px;
+              padding:14px;font-size:15px;font-weight:700;
+              box-shadow:0 4px 16px rgba(5,150,105,.3);">
+      📥 ZIP ডাউনলোড করুন (${success} টি HTML ফাইল)
+    </a>`;
+
+  log(`\n✅ সম্পন্ন! সফল: ${success} | ব্যর্থ: ${fail}`, success > 0 ? 'success' : 'error');
+
+  btn.disabled = false;
+  btn.innerHTML = '⚡ HTML তৈরি শুরু করুন';
+}
+
+// ── STEP 5: TEMPLATE MANAGEMENT ──
+let currentTplMode = 'default';
+let uploadedTplContent = '';
+let pastedTplContent = '';
+
+function selectTplMode(mode) {
+  currentTplMode = mode;
+  ['default', 'upload', 'paste'].forEach(m => {
+    const card = document.getElementById(`tpl-card-${m}`);
+    const panel = document.getElementById(`tpl-panel-${m}`);
+    const radio = card.querySelector('input[type="radio"]');
+    if (m === mode) {
+      card.style.borderColor = '#7c3aed';
+      card.style.background = '#f5f3ff';
+      card.querySelector('span').style.color = '#5b21b6';
+      radio.checked = true;
+      panel.style.display = 'block';
+    } else {
+      card.style.borderColor = '#e2e8f0';
+      card.style.background = '#fff';
+      card.querySelector('span').style.color = '#475569';
+      panel.style.display = 'none';
+    }
+  });
+}
+
+function handleTplFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('tplUploadStatus');
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    uploadedTplContent = evt.target.result;
+    status.style.display = 'block';
+    status.style.background = '#ecfdf5';
+    status.style.color = '#065f46';
+    status.style.border = '1px solid #a7f3d0';
+    status.innerHTML = `✅ <strong>${file.name}</strong> লোড হয়েছে (${Math.round(file.size/1024)} KB)`;
+  };
+  reader.onerror = function() {
+    status.style.display = 'block';
+    status.style.background = '#fef2f2';
+    status.style.color = '#991b1b';
+    status.innerHTML = `❌ ফাইল লোড করতে সমস্যা হয়েছে!`;
+  };
+  reader.readAsText(file);
+}
+
+function handleTplCodeInput() {
+  const text = document.getElementById('tplCustomCode').value;
+  pastedTplContent = text;
+  const status = document.getElementById('tplPasteStatus');
+  if (text.trim().length > 0) {
+    status.innerHTML = `✓ কোড লোড হয়েছে (${text.length} অক্ষর)`;
+    status.style.color = '#059669';
+  } else {
+    status.innerHTML = '';
+  }
+}
+
+function getActiveCustomTemplate() {
+  if (currentTplMode === 'upload' && uploadedTplContent.trim().length > 0) {
+    return uploadedTplContent;
+  }
+  if (currentTplMode === 'paste' && pastedTplContent.trim().length > 0) {
+    return pastedTplContent;
+  }
+  return null;
+}
+
+// ── CUSTOM TEMPLATE INJECTOR (Regex Replicating Python Logic) ──
+function injectIntoTemplate(tpl, title, scriptUrl, imageUrl, dateStr) {
+  const esc = s => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const json = s => s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,' ');
+  const t = title.trim();
+  const te = esc(t);
+  const tj = json(t);
+
+  let html = tpl;
+
+  // 1. Script Tag Injection
+  let activeScript = scriptUrl && scriptUrl.trim() ? scriptUrl.trim() : DEFAULT_SCRIPT;
+  if (activeScript.startsWith('<script')) {
+    const m = activeScript.match(/src=['"]([^'"]+)['"]/i);
+    activeScript = m ? m[1] : DEFAULT_SCRIPT;
+  }
+
+  const scriptRegex = new RegExp('<' + 'script\\s+src=[\'"][^\'"]*?(?:sp\\.js|m1\\.js|epl1\\.js)[^\'"]*?[\'"]\\s*><' + '/script>', 'i');
+  if (scriptRegex.test(html)) {
+    html = html.replace(scriptRegex, '<' + 'script src="' + activeScript + '"><' + '/script>');
+  } else {
+    html = html.replace(/(<\/head>)/i, '  <' + 'script src="' + activeScript + '"><' + '/script>\n$1');
+  }
+
+  // 2. Update <title>...</title>
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>\n${t}\n  </title>`);
+
+  // 3. Update Meta tags
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+name=['"]title['"])/gi, `$1"${te}"$2`);
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+name=['"]description['"])/gi, `$1"${te}"$2`);
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+name=['"]x:title['"])/gi, `$1"${te}"$2`);
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+name=['"]x:description['"])/gi, `$1"${te}"$2`);
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+property=['"]og:title['"])/gi, `$1"${te}"$2`);
+  html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+property=['"]og:description['"])/gi, `$1"${te}"$2`);
+
+  // 4. Update Article Header & Headline
+  html = html.replace(/(<span\s+class=['"]sdc-article-header__long-title['"]>)[\s\S]*?(<\/span>)/gi, `$1\n       ${t}\n         $2`);
+  html = html.replace(/(data-short-title=)["][^"]*?["]/gi, `$1"${te}"`);
+
+  // 5. Update Video Widget Caption & Caption Text
+  html = html.replace(/(data-caption=)["][^"]*?["]/gi, `$1"${te}"`);
+  html = html.replace(/(<span\s+class=['"]ui-media-caption__caption-text['"][^>]*>)[\s\S]*?(<\/span>)/gi, `$1\n     ${t}\n       $2`);
+
+  // 6. Update All Related Video Tiles Headlines
+  html = html.replace(/(<span\s+class=['"]sdc-site-tile__headline-text['"][^>]*>)[\s\S]*?(<\/span>)/gi, `$1\n           ${t}\n             $2`);
+
+  // 7. Update JSON-LD Schemas (NewsArticle & VideoObject)
+  html = html.replace(/("headline"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/("alternativeHeadline"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/("articleBody"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/("description"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/("name"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+
+  // 8. Update Advert-Manager Config JSON
+  html = html.replace(/("consumption"\s*:\s*\{"metadata"\s*:\s*\{"type"\s*:\s*"story"\s*,\s*"description"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/(,\s*"title"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+  html = html.replace(/("mediaTitle"\s*:\s*")[^"]*?(")/g, `$1${tj}$2`);
+
+  // 9. Update Dates
+  html = html.replace(/(<p\s+class=['"]sdc-article-date__date-time['"]>)[\s\S]*?(<\/p>)/gi, `$1\n           ${dateStr}\n          $2`);
+  html = html.replace(/("datePublished"\s*:\s*")[^"]*?(")/g, `$1${dateStr}T23:59:00+0000$2`);
+  html = html.replace(/("uploadDate"\s*:\s*")[^"]*?(")/g, `$1${dateStr}T23:59:00+0000$2`);
+
+  // 10. Optional Image Replacement
+  if (imageUrl && imageUrl.trim()) {
+    const img = imageUrl.trim();
+    html = html.replace(/https:\/\/cdnb\.artstation\.com\/p\/assets\/images\/images\/076\/569\/795\/large\/full-video-video-adik-kakak-viral-tiktok-baju-biru-full-7-menit-link-hd-30\.jpg(?:\?[0-9a-zA-Z_=&-]*)?/g, img);
+    html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+property=['"]og:image['"])/gi, `$1"${img}"$2`);
+    html = html.replace(/(<meta\s+content=)["][^"]*?["](\s+name=['"]twitter:image['"])/gi, `$1"${img}"$2`);
+  }
+
+  return html;
+}
+
+// ── HTML BUILDER ──
+function buildHTML(title, scriptUrl, imageUrl, dateStr) {
+  const customTpl = getActiveCustomTemplate();
+  if (customTpl) {
+    return injectIntoTemplate(customTpl, title, scriptUrl, imageUrl, dateStr);
+  }
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const json = s => s.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,' ');
+  const t = title.trim();
+  const te = esc(t);
+  const tj = json(t);
+
+  const scriptTag = '<' + 'script src="' + scriptUrl + '"><' + '/script>';
+  const closeScript = '<' + '/script>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+${t}
+  </title>
+<meta content="${te}" name="title">
+<meta content="${te}" name="description">
+<meta content="${te}" name="x:title">
+<meta content="${te}" name="x:description">
+<meta content="${te}" property="og:title">
+<meta content="${te}" property="og:description">
+<meta content="${imageUrl}" property="og:image">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${te}">
+<meta name="twitter:description" content="${te}">
+<meta name="twitter:image" content="${imageUrl}">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "${tj}",
+  "alternativeHeadline": "${tj}",
+  "articleBody": "${tj}",
+  "description": "${tj}",
+  "name": "${tj}",
+  "datePublished": "${dateStr}T23:59:00+0000",
+  "image": "${imageUrl}"
+}
+${closeScript}
+${scriptTag}
+</head>
+<body>
+<article>
+  <header>
+    <span class="sdc-article-header__long-title">
+       ${t}
+         </span>
+    <span data-short-title="${te}"></span>
+  </header>
+  <div data-caption="${te}">
+    <span class="ui-media-caption__caption-text">
+     ${t}
+       </span>
+  </div>
+  <p class="sdc-article-date__date-time">
+           ${dateStr}
+          </p>
+  <span class="sdc-site-tile__headline-text">
+           ${t}
+             </span>
+</article>
+</body>
+</html>`;
+}
+</script>
+</body>
+</html>
